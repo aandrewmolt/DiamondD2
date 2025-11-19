@@ -10,6 +10,7 @@ export const LOCATIONS: Record<string, LocationInfo> = {
     phone: '(903) 843-4494',
     mapUrl: 'https://maps.app.goo.gl/GR4UxXLaHYprJrZHA',
     scheduleUrl: 'https://www.droptop-scheduler.com/rdDIZZK2rUaG2HMeUT11O5dwGFg9yC9s9IwubayO/TdM1vot1sv/',
+    coordinates: [32.7293, -94.9435],
     features: ['DOT Inspections', 'Commercial Inspections', 'Drive-Thru', 'Pickup Service'],
     hours: {
       mf: '8:00 AM - 5:00 PM',
@@ -25,6 +26,7 @@ export const LOCATIONS: Record<string, LocationInfo> = {
     phone: '(903) 704-0269',
     mapUrl: 'https://maps.app.goo.gl/kwEr7qUoeEFCDucD7',
     scheduleUrl: 'https://www.droptop-scheduler.com/rdDIZZK2rUaG2HMeUT11O5dwGFg9yC9s9IwubayO/UCjd2ZpK4t/',
+    coordinates: [32.5007, -94.7405],
     features: ['Drive-Thru', 'Pickup Service', 'Fleet Services'],
     hours: {
       mf: '8:00 AM - 5:00 PM',

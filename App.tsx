@@ -27,6 +27,7 @@ function App() {
   // Map Refs
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
+  const isMapMounted = useRef(false);
 
   // Handle scroll for sticky header styling
   useEffect(() => {
@@ -59,18 +60,15 @@ function App() {
         maxZoom: 19
       }).addTo(map);
 
-      // Define Locations
-      const locations = [
-        { coords: [32.7293, -94.9435], name: 'Gilmer' },
-        { coords: [32.5007, -94.7405], name: 'Longview' }
-      ];
+      // Define Locations from CONSTANTS
+      const locations = Object.values(LOCATIONS);
 
       // Custom Marker Icon
       const createCustomIcon = (name: string) => L.divIcon({
         className: 'bg-transparent border-0',
-        html: `<div class="relative flex flex-col items-center justify-center transform -translate-x-1/2 -translate-y-1/2">
-                 <div class="w-4 h-4 bg-[#DC2626] rounded-full shadow-[0_0_15px_rgba(220,38,38,1)] animate-pulse"></div>
-                 <span class="absolute top-5 bg-gray-900/90 text-white text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider backdrop-blur-sm border border-gray-700 whitespace-nowrap">${name}</span>
+        html: `<div class="relative flex flex-col items-center justify-center transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group">
+                 <div class="w-4 h-4 bg-[#DC2626] rounded-full shadow-[0_0_15px_rgba(220,38,38,1)] animate-pulse group-hover:scale-125 transition-transform"></div>
+                 <span class="absolute top-5 bg-gray-900/90 text-white text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider backdrop-blur-sm border border-gray-700 whitespace-nowrap group-hover:text-brand-red transition-colors">${name}</span>
                </div>`,
         iconSize: [0, 0],
         iconAnchor: [0, 0]
@@ -78,10 +76,15 @@ function App() {
 
       locations.forEach(loc => {
         // Add Marker
-        L.marker(loc.coords, { icon: createCustomIcon(loc.name) }).addTo(map);
+        const marker = L.marker(loc.coordinates, { icon: createCustomIcon(loc.name) }).addTo(map);
         
+        // Add Click Handler to Marker
+        marker.on('click', () => {
+           setActiveLocation(loc);
+        });
+
         // Add 15 Mile Radius Circle (approx 24,140 meters)
-        L.circle(loc.coords, {
+        L.circle(loc.coordinates, {
           color: '#DC2626',
           fillColor: '#DC2626',
           fillOpacity: 0.1,
@@ -101,6 +104,17 @@ function App() {
       }
     };
   }, []);
+
+  // Handle Map "FlyTo" when active location changes (but skip initial mount)
+  useEffect(() => {
+    if (isMapMounted.current && mapInstanceRef.current && activeLocation) {
+      mapInstanceRef.current.flyTo(activeLocation.coordinates, 13, {
+        animate: true,
+        duration: 1.5
+      });
+    }
+    isMapMounted.current = true;
+  }, [activeLocation]);
 
   const toggleLocation = (locId: string) => {
     if (LOCATIONS[locId]) setActiveLocation(LOCATIONS[locId]);
@@ -213,7 +227,7 @@ function App() {
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-20 bg-white">
+      <section id="services" className="py-20 bg-white scroll-mt-28">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Premium Automotive Care</h2>
@@ -276,7 +290,7 @@ function App() {
       </section>
 
       {/* Location & Radius Section */}
-      <section id="locations" className="py-20 bg-gray-900 text-white">
+      <section id="locations" className="py-20 bg-gray-900 text-white scroll-mt-28">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             
@@ -293,7 +307,7 @@ function App() {
                  href={activeLocation.mapUrl} 
                  target="_blank" 
                  rel="noreferrer"
-                 className="absolute bottom-4 right-4 bg-white text-gray-900 px-4 py-2 rounded-md text-sm font-bold hover:bg-gray-200 transition-colors flex items-center gap-2 shadow-lg z-30"
+                 className="absolute bottom-4 right-4 bg-white text-gray-900 px-4 py-2 rounded-md text-sm font-bold hover:bg-gray-200 transition-colors flex items-center gap-2 shadow-lg z-[1000]"
                >
                  <Navigation size={16} />
                  Open in Google Maps
@@ -324,8 +338,8 @@ function App() {
                 </button>
               </div>
 
-              {/* Active Content */}
-              <div className="animate-fade-in space-y-6">
+              {/* Active Content with Key for Animation Reset */}
+              <div key={activeLocation.id} className="animate-fade-in space-y-6">
                 <div>
                   <h3 className="text-2xl font-bold mb-2">{activeLocation.name}</h3>
                   <p className="text-gray-300 text-lg flex items-start gap-2">
@@ -345,7 +359,7 @@ function App() {
                    </div>
                    <div>
                      <h4 className="text-gray-400 uppercase text-xs font-bold tracking-wider mb-2">Contact</h4>
-                     <a href={`tel:${activeLocation.phone}`} className="text-2xl font-bold text-white hover:text-brand-red transition-colors flex items-center gap-2">
+                     <a href={`tel:${activeLocation.phone.replace(/\D/g,'')}`} className="text-2xl font-bold text-white hover:text-brand-red transition-colors flex items-center gap-2">
                        <Phone size={24} />
                        {activeLocation.phone}
                      </a>
@@ -379,7 +393,7 @@ function App() {
       </section>
 
       {/* Reviews Section */}
-      <section id="reviews" className="py-20 bg-gray-50">
+      <section id="reviews" className="py-20 bg-gray-50 scroll-mt-28">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
             <div className="max-w-2xl">

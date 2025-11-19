@@ -15,6 +15,7 @@ export interface LocationInfo {
   phone: string;
   mapUrl: string;
   scheduleUrl: string;
+  coordinates: [number, number];
   features: string[];
   hours: {
     mf: string;
